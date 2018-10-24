@@ -1,5 +1,13 @@
 <?php
-// Merchant key here as provided by Payu
+
+ session_start(); // needs to be before anything else on page to use $_SESSION
+    // this page outputs the textarea1 from the session IF it exists
+    $textarea1 = "2"; // set var to avoid errors
+    if(isset($_SESSION['textarea1'])){
+        $textarea1 = $_SESSION['textarea1'];
+    }
+ 
+ // Merchant key here as provided by Payu
 $MERCHANT_KEY = "merchant key";
 
 // Merchant Salt as provided by Payu
@@ -14,8 +22,7 @@ $posted = array();
 if(!empty($_POST)) {
     //print_r($_POST);
   foreach($_POST as $key => $value) {    
-    $posted[$key] = $value; 
-	
+    $posted[$key] = $value;
   }
 }
 
@@ -29,12 +36,12 @@ if(empty($posted['txnid'])) {
 }
 $hash = '';
 // Hash Sequence
-$hashSequence = "key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10";
+$hashSequence = "key|txnid|textarea1|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10";
 if(empty($posted['hash']) && sizeof($posted) > 0) {
   if(
           empty($posted['key'])
           || empty($posted['txnid'])
-          || empty($posted['amount'])
+          || empty($posted['textarea1'])
           || empty($posted['firstname'])
           || empty($posted['email'])
           || empty($posted['phone'])
@@ -76,7 +83,10 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
       payuForm.submit();
     }
   </script>
-  <head>
+  
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="main.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="/resources/demos/style.css">
@@ -89,7 +99,9 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
     <script src="https://cdn.jsdelivr.net/npm/timepicker@1.11.12/jquery.timepicker.js"></script>
     <script>
         $( function() {
-            $( "#datepicker" ).datepicker();
+            $( "#datepicker" ).datepicker(
+            { minDate: 0}
+            );
         } );
     </script>
     <script>
@@ -113,9 +125,34 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
         });
 
     </script>
-  <body onload="submitPayuForm()">
-    <h2><center>PayU Form</center></h2>
-    <br/>
+    <!-- Facebook Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '179010549256566');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=179010549256566&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Facebook Pixel Code -->
+    </head>
+  <body onload="submitPayuForm()" style="padding:20px">
+  <script>
+  fbq('track', 'Lead');
+</script>
+
+  <div>
+    <img src="NS-Style-Salon.jpg" class="img-logo" height="120px" alt="Smiley face">
+    </div>
+<h2 style="text-align: center;">Book Now</h2>
+
     <?php if($formError) { ?>
 	
       <span style="color:red">Please fill all mandatory fields.</span>
@@ -140,28 +177,26 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
       <input type="hidden" name="txnid" value="<?php echo $txnid ?>" />
      
         
-        <div  class="form-input">
+        <div class="form-input">
           <label>Amount: </label>
-          <input name="amount" value="<?php echo (empty($posted['amount'])) ? '' : $posted['amount'] ?>" />
-          <!-- <p>First Name: </p>
-          <p><input name="firstname" id="firstname" value="<?php echo (empty($posted['firstname'])) ? '' : $posted['firstname']; ?>" /></p> -->
+          <input name="textarea1" placeholder="Enter amount" value="<?php echo $textarea1; ?>" />
         </div>
 
 
         <div class="form-input">
-                <label>First Name:*</label>
-                <input required name="firstname" placeholder="Enter your first name" value="<?php echo (empty($posted['firstname'])) ? '' : $posted['firstname'] ?>" />
+                <label>Name:</label>
+                <input required name="firstname" placeholder="Enter your name" value="<?php echo (empty($posted['firstname'])) ? '' : $posted['firstname'] ?>" />
         </div>
 
 
         <div class="form-input">
           <label>Email: </label>
-          <input name="email" id="email" value="<?php echo (empty($posted['email'])) ? '' : $posted['email']; ?>" />
+          <input name="email" id="email" placeholder="Enter your email" value="<?php echo (empty($posted['email'])) ? '' : $posted['email']; ?>" />
         </div>
 
         <div class="form-input">
           <label>Phone:  </label>
-         <input name="phone" value="<?php echo (empty($posted['phone'])) ? '' : $posted['phone']; ?>" /> 
+         <input name="phone" placeholder="Enter your number" value="<?php echo (empty($posted['phone'])) ? '' : $posted['phone']; ?>" /> 
         </div>
 
         <div style="display: none;">
@@ -175,12 +210,12 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
 
             <div class="form-input">
                 <label for="">Date: </label>
-            <input required name="surl" placeholder="Choose Date" id="datepicker" />
+            <input required name="date" placeholder="Choose Date" value="<?php echo (empty($posted['date'])) ? '' : $posted['date']; ?>" id="datepicker" />
             </div>
 
             <div class="form-input">
                 <label>Time:</label>
-                <input required name="surl" id="timepicker" placeholder="00:00" />
+                <input required name="time" value="<?php echo (empty($posted['time'])) ? '' : $posted['time']; ?>" id="timepicker" placeholder="00:00" />
             </div>
             
             <div class="form-input">
@@ -201,11 +236,11 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
 
         <div style="display: none;">
           <p>Success URI: </p>
-          <p colspan="3"><input name="surl" value="http://localhost/Payment_Gateway/success.php" size="64" /></p>
+          <p colspan="3"><input name="surl" value="http://nailspaexperience.com/App_Data/success.php" size="64" /></p>
         </div>
         <div style="display: none;">
           <p>Failure URI: </p>
-          <p colspan="3"><input name="furl" value="http://localhost/Payment_Gateway/failure.php" size="64" /></p>
+          <p colspan="3"><input name="furl" value="http://nailspaexperience.com/App_Data/failure.php" size="64" /></p>
         </div>
 
         <div>
@@ -219,7 +254,7 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
           <?php } ?>
         </tr> -->
 
-        <div>
+        <div class="but-div">
             <?php if(!$hash) { ?>
                 <p colspan="4">
                     <input type="submit" class="btn btn-success book-now" value="Book now" />
@@ -231,7 +266,67 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
           </div>
 
 
-          
+          <div class="section-rth col-md-6 col-sm-12 col-12">
+          <p>Amount: Rs.650 for classic pedicure with complimentary foot polishing worth rs. 350/- </p>
+          <hr>
+            <div class="side-sec">
+                <div class="side-img">
+                    <img src="http://arfeenkhan.com/payment/images/shil.png">
+                </div>
+                <div class="side-txt">
+                   <h3> Since 2009 </h3>
+                    <p>Done a Million+ Services. <br />8 Location in Mumbai<br /><!--If you decide during that time that it's not right for you,
+                        just let us know and you'll be issued a full and prompt refund, no questions asked. In short,
+                        you get a great return on your investment, or you get your money back.--></p>
+                </div>
+            </div>
+            
+            <div class="side-sec">
+                <div class="side-img">
+                    <img src="http://www.arfeenkhan.com/payment/images/money.png">
+                </div>
+                <div class="side-txt">
+                   <h3> 7 DAYS SERVICE GUARANTEE </h3>
+                    <p>We Assure You Best Services with our 7 Days No Chip No Breakage Guarantee.
+<!--Our Service has seven days guarantee if during seven days from your service you nails get chipped we will give you free retouching.<!--You have a full 7 days to preview . If you decide during that time that it's not right for you,
+                        just let us know and you'll be issued a full and prompt refund, no questions asked. In short,
+                        you get a great return on your investment, or you get your money back.--></p>
+                </div>
+            </div>
+
+            <!--<div class="side-sec">
+                <div class="side-img">
+                    <img src="http://www.arfeenkhan.com/payment/images/lock.png">
+                </div>
+                <div class="side-txt">
+                    <h3>YOUR INFORMATION IS SAFE</h3>
+                    <p>We will not sell or rent your personal contact information for any marketing purposes whatsoever.</p>
+                </div>
+            </div>-->
+
+
+            <div class="side-sec">
+                <div class="side-img">
+                    <img src="http://www.arfeenkhan.com/payment/images/lock.png">
+                </div>
+                <div class="side-txt">
+                    <h3>SECURE CHECKOUT</h3>
+                    <p>All information is encrypted and transmitted without risk using a Secure Sockets Layer protocol.</p>
+                </div>
+            </div>
+
+            <div class="side-sec">
+                <div class="side-img">
+                    <img src="http://www.arfeenkhan.com/payment/images/help.png">
+                </div>
+                <div class="side-txt">
+                    <h3>NEED HELP?</h3>
+                    <p>Call Us @<a href="tel:9769014888"> +91 9769014888</a><br />
+                    Email us Anytime: <a href="mailto:info@nailspaexperience.com">info@nailspaexperience.com</a></p>
+                </div>
+            </div>
+
+        </div>
 <!---->
 <!--        </div>-->
         </div>
@@ -241,8 +336,8 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
     $(function() {
         $('#timepicker').timepicker({
             //timeFormat: 'h:mm p',
-            minTime: '10',
-            maxTime: '9:00pm',
+            minTime: '11:30',
+            maxTime: '7:30pm',
             dynamic: false,
             dropdown: true,
             scrollbar: true
